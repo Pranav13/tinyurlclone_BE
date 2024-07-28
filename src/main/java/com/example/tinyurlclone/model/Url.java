@@ -4,16 +4,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
-@Entity
 public class Url {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @Column(nullable = false,unique = true)
     private String originalUrl;
 
-    @Column(nullable = false,unique = true)
     private String shortUrl;
 
+    public Url(String originalUrl, String shortUrl) {
+        this.originalUrl = originalUrl;
+        this.shortUrl = shortUrl;
+    }
 }

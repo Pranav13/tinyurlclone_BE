@@ -27,10 +27,10 @@ public class UrlController {
 
     @GetMapping("/{shortUrl}")
     public ResponseEntity<Void> redirectToOriginalUrl(@PathVariable String shortUrl) {
-        Optional<Url> url = urlService.getOriginalUrl(shortUrl);
-        return url.map(value -> {
+        Optional<String> url = urlService.getOriginalUrl(shortUrl);
+        return url.map(originalUrl -> {
             HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.LOCATION, value.getOriginalUrl());
+            headers.add(HttpHeaders.LOCATION, originalUrl);
             return new ResponseEntity<Void>(headers, HttpStatus.FOUND);
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }

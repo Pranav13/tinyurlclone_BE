@@ -1,16 +1,14 @@
 package com.example.tinyurlclone.service;
 
 import com.example.tinyurlclone.model.Url;
-import com.example.tinyurlclone.repository.UrlRepository;
 import com.example.tinyurlclone.util.Base62;
 import com.example.tinyurlclone.util.HashUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -18,37 +16,26 @@ public class UrlService {
 
     private static final Logger logger = LoggerFactory.getLogger(UrlService.class);
 
-    @Autowired
-    private UrlRepository urlRepository;
+    private final Map<String, String> urlMap = new HashMap<>();
 
-    @Cacheable(value = "urlCache", key = "#originalUrl")
     public Url createShortUrl(String originalUrl) {
         logger.info("originalUrl: {}", originalUrl);
-        Optional<Url> byOriginalUrl = urlRepository.findByOriginalUrl(originalUrl);
-        if(byOriginalUrl.isPresent()){
-            logger.info("Cache hit for originalUrl: {}", originalUrl);
-            return byOriginalUrl.get();
+        if(urlMap.containsKey(originalUrl)) {
+            String shortUrl = urlMap.get(originalUrl);
+            return new Url(originalUrl, shortUrl);
         } else {
-            logger.info("Cache miss for originalUrl: {}", originalUrl);
             String shortUrl = generateShortUrl(originalUrl);
-            Url url = new Url();
-            url.setOriginalUrl(originalUrl);
-            url.setShortUrl(shortUrl);
-            return urlRepository.save(url);
+            urlMap.put(originalUrl, shortUrl);
+            urlMap.put(shortUrl, originalUrl); // Store the reverse mapping
+            return new Url(originalUrl, shortUrl);
         }
     }
 
-    @Cacheable(value = "urlCache", key = "#shortUrl")
-    public Optional<Url> getOriginalUrl(String shortUrl) {
+    public Optional<String> getOriginalUrl(String shortUrl) {
         logger.info("shortUrl: {}", shortUrl);
-        Optional<Url> result = urlRepository.findByShortUrl(shortUrl);
-        if(result.isPresent()) {
-            logger.info("Cache hit for shortUrl: {}", shortUrl);
-        } else {
-            logger.info("Cache miss for shortUrl: {}", shortUrl);
-        }
-        return result;
+        return Optional.ofNullable(urlMap.get(shortUrl));
     }
+
 
     public static String generateShortUrl(String originalUrl) {
         String hash = HashUtil.generateSha256Hash(originalUrl);
