@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:49273")
+@CrossOrigin(origins = "https://tinyurlclone.onrender.com/")
 public class UrlController {
 
     @Autowired
