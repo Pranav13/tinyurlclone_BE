@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
 @CrossOrigin(origins = "https://tinyurlclone.onrender.com/")
 public class UrlController {
 
